@@ -4,11 +4,8 @@ import {
   CheckCircle2,
   X,
   FileText,
-  FileCheck2,
-  Share2,
   ExternalLink,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 import { GenerationProgress, triggerPdfDownload } from '../utils/pdfGenerator';
 
 interface DownloadModalProps {
@@ -30,7 +27,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({
   pageCount,
   imageCount,
 }) => {
-  const [fileName, setFileName] = useState('স্মার্ট-কোলাজ-A4.pdf');
+  const [fileName, setFileName] = useState('Smart-Collage-A4.pdf');
 
   if (!isOpen) return null;
 
@@ -51,121 +48,115 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="relative w-full max-w-sm bg-white rounded-3xl p-5 shadow-2xl border border-slate-100 overflow-hidden"
-      >
-        {/* Close button */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85">
+      {/* Surface Container (#272727) */}
+      <div className="relative w-full max-w-sm rounded-3xl bg-[#272727] border border-[#383838] p-6 text-white shadow-2xl">
+        {/* Close Button */}
         <button
           onClick={onClose}
           aria-label="Close modal"
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#141414] hover:bg-[#1e1e1e] border border-[#383838] flex items-center justify-center text-zinc-400 hover:text-white transition-colors cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
 
         {!isComplete ? (
-          /* Loading & Progress State */
+          /* Loading State */
           <div className="text-center py-6 space-y-4">
-            <div className="relative w-16 h-16 mx-auto">
-              <div className="w-16 h-16 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
-              <div className="absolute inset-0 flex items-center justify-center text-blue-600">
-                <FileText className="w-6 h-6 animate-pulse" />
+            <div className="relative w-14 h-14 mx-auto">
+              <div className="w-14 h-14 rounded-full border-3 border-[#383838] border-t-purple-500 animate-spin" />
+              <div className="absolute inset-0 flex items-center justify-center text-purple-400">
+                <FileText className="w-5 h-5 animate-pulse" />
               </div>
             </div>
 
             <div>
-              <h3 className="text-base font-bold text-slate-900">
-                A4 কোলাজ পিডিএফ তৈরি হচ্ছে...
+              <h3 className="text-base font-semibold text-white tracking-tight">
+                Rendering A4 PDF...
               </h3>
-              <p className="text-xs text-slate-500 mt-1">
-                {progress?.statusText || 'ছবিগুলো নিখুঁতভাবে বসানো হচ্ছে...'}
+              <p className="text-xs text-zinc-400 mt-1">
+                {progress?.statusText || 'Measuring and fitting photos...'}
               </p>
             </div>
 
-            {/* Progress Bar */}
-            <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+            <div className="w-full bg-[#141414] h-2 rounded-full overflow-hidden border border-[#383838]">
               <div
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 h-full transition-all duration-300 rounded-full"
-                style={{ width: `${progress?.percent || 15}%` }}
+                className="bg-[#7c3aed] h-full transition-all duration-300 rounded-full"
+                style={{ width: `${progress?.percent || 20}%` }}
               />
             </div>
 
-            <p className="text-[11px] font-mono text-slate-600">
-              {progress?.percent || 15}% সম্পন্ন
+            <p className="text-[11px] font-mono text-zinc-400">
+              {progress?.percent || 20}% complete
             </p>
           </div>
         ) : (
-          /* Ready & Success State */
-          <div className="text-center py-3 space-y-4">
-            <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center shadow-md shadow-emerald-500/10">
-              <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
+          /* Complete State */
+          <div className="text-center py-2 space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#141414] border border-[#383838] text-purple-400 mx-auto flex items-center justify-center">
+              <CheckCircle2 className="w-6 h-6 stroke-[2]" />
             </div>
 
             <div>
-              <h3 className="text-base font-bold text-slate-900">
-                পিডিএফ সম্পূর্ণ তৈরি হয়েছে!
+              <h3 className="text-base font-semibold text-white tracking-tight">
+                PDF Ready
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                সবগুলো ছবি সুন্দরভাবে A4 পেজে সাজানো হয়েছে
+              <p className="text-xs text-zinc-400 mt-0.5">
+                Formatted into standard A4 sheets
               </p>
             </div>
 
-            {/* Document summary box */}
-            <div className="bg-slate-50 rounded-2xl p-3 border border-slate-200/80 text-left space-y-1.5 text-xs">
-              <div className="flex justify-between text-slate-600">
-                <span>মোট ছবি:</span>
-                <span className="font-bold text-slate-800">{imageCount}টি</span>
+            {/* Document summary inside #141414 */}
+            <div className="rounded-2xl bg-[#141414] border border-[#383838] p-3 divide-y divide-[#272727] text-xs">
+              <div className="flex justify-between py-1.5 text-zinc-400">
+                <span>Photos Included:</span>
+                <span className="font-semibold text-zinc-200">{imageCount}</span>
               </div>
-              <div className="flex justify-between text-slate-600">
-                <span>A4 পেজ সংখ্যা:</span>
-                <span className="font-bold text-slate-800">{pageCount}টি পৃষ্ঠা</span>
+              <div className="flex justify-between py-1.5 text-zinc-400">
+                <span>A4 Page Count:</span>
+                <span className="font-semibold text-purple-400">{pageCount} {pageCount === 1 ? 'Page' : 'Pages'}</span>
               </div>
-              <div className="flex justify-between text-slate-600">
-                <span>ফাইল সাইজ:</span>
-                <span className="font-bold text-slate-800 font-mono">{sizeMb} MB</span>
+              <div className="flex justify-between py-1.5 text-zinc-400">
+                <span>File Size:</span>
+                <span className="font-semibold text-zinc-200 font-mono">{sizeMb} MB</span>
               </div>
             </div>
 
-            {/* File name editor */}
+            {/* Filename Input */}
             <div className="text-left">
-              <label className="text-[11px] font-bold text-slate-700 block mb-1">
-                ফাইলের নাম
+              <label className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block mb-1">
+                Document Name
               </label>
               <input
                 type="text"
                 value={fileName}
                 onChange={(e) => setFileName(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3.5 py-2 bg-[#141414] border border-[#383838] rounded-xl text-xs font-medium text-white focus:outline-hidden focus:ring-1 focus:ring-purple-500"
               />
             </div>
 
             {/* Download Button */}
-            <motion.button
-              whileTap={{ scale: 0.97 }}
+            <button
               onClick={handleDownload}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30 transition-all cursor-pointer"
+              className="w-full bg-[#7c3aed] hover:bg-[#6d28d9] active:scale-95 text-white font-medium text-xs sm:text-sm py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
-              <Download className="w-4 h-4 stroke-[2.5]" />
-              <span>এক ক্লিকে ডাউনলোড করুন</span>
-            </motion.button>
+              <Download className="w-4 h-4 stroke-[2]" />
+              <span>Download PDF</span>
+            </button>
 
-            {/* Preview link */}
+            {/* Open in Tab */}
             {pdfUrl && (
               <button
                 onClick={handleOpenInNewTab}
-                className="text-xs font-semibold text-slate-600 hover:text-blue-600 flex items-center justify-center gap-1.5 mx-auto transition-colors"
+                className="text-xs font-medium text-zinc-400 hover:text-purple-400 flex items-center justify-center gap-1.5 mx-auto transition-colors cursor-pointer"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                <span>নতুন ট্যাবে পিডিএফ খুলুন</span>
+                <span>Open in browser tab</span>
               </button>
             )}
           </div>
         )}
-      </motion.div>
+      </div>
     </div>
   );
 };

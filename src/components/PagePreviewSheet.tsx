@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
   LayoutGrid,
-  Maximize2,
-  SlidersHorizontal,
-  Layers,
-  FileCheck,
+  ZoomIn,
+  ZoomOut,
+  Sparkles,
+  Check,
 } from 'lucide-react';
 import { CalculatedPage, LayoutMode, MarginSize, Orientation, PdfSettings, UploadedImage } from '../types';
 
@@ -24,7 +24,7 @@ export const PagePreviewSheet: React.FC<PagePreviewSheetProps> = ({
   onUpdateSettings,
 }) => {
   const [activePageIndex, setActivePageIndex] = useState(0);
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [zoomScale, setZoomScale] = useState(1);
 
   if (pages.length === 0) return null;
 
@@ -32,56 +32,60 @@ export const PagePreviewSheet: React.FC<PagePreviewSheetProps> = ({
   const isLandscape = settings.orientation === 'landscape';
 
   const layoutOptions: { id: LayoutMode; label: string; sub: string }[] = [
-    { id: 'auto', label: 'স্মার্ট অটো কোলাজ', sub: 'সেরা ব্যালেন্স' },
-    { id: 'grid2', label: '২টি প্রতি পেজ', sub: 'স্প্লিট ভিউ' },
-    { id: 'grid4', label: '৪টি গ্রিড', sub: '২x২ গ্রিড' },
-    { id: 'grid6', label: '৬টি গ্রিড', sub: '২x৩ গ্রিড' },
-    { id: 'single', label: '১টি ফুল পেজ', sub: 'একক পেজ' },
+    { id: 'auto', label: 'Smart Auto Collage', sub: 'Optimal aspect balance' },
+    { id: 'grid2', label: '2-Up Split', sub: 'Two per sheet' },
+    { id: 'grid4', label: '4-Up Grid', sub: '2×2 grid' },
+    { id: 'grid6', label: '6-Up Grid', sub: '2×3 grid' },
+    { id: 'single', label: 'Full Page', sub: '1 photo per sheet' },
   ];
 
   return (
     <div className="w-full space-y-4">
-      {/* Layout Mode Selector Pills */}
-      <div className="bg-white rounded-2xl p-3 border border-slate-200/80 shadow-2xs">
-        <div className="flex items-center justify-between mb-2">
-          <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-            <LayoutGrid className="w-4 h-4 text-blue-600" />
-            <span>পেজ লেআউট স্টাইল</span>
+      {/* Layout Mode Selector (Surface #272727, inner items #141414) */}
+      <div className="bg-[#272727] rounded-3xl p-4 border border-[#383838]">
+        <div className="flex items-center justify-between mb-3 px-1">
+          <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+            <LayoutGrid className="w-3.5 h-3.5 text-purple-400" />
+            <span>Layout Style</span>
           </label>
-          <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
-            মোট {pages.length}টি A4 পেজ
+          <span className="text-[11px] font-mono font-medium text-zinc-400 bg-[#141414] border border-[#383838] px-2 py-0.5 rounded-full">
+            {pages.length} A4 {pages.length === 1 ? 'Page' : 'Pages'}
           </span>
         </div>
 
-        {/* Featured Smart Auto Collage Button */}
+        {/* Featured Smart Auto Collage (#141414 or purple #7c3aed when active) */}
         <button
           onClick={() => onUpdateSettings({ layoutMode: 'auto' })}
-          className={`w-full mb-2 py-2.5 px-3 rounded-xl text-left transition-all border flex items-center justify-between ${
+          className={`w-full mb-2 p-3 rounded-2xl text-left transition-all border flex items-center justify-between cursor-pointer ${
             settings.layoutMode === 'auto'
-              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-600 shadow-md shadow-blue-500/20'
-              : 'bg-blue-50/70 hover:bg-blue-100/70 text-slate-800 border-blue-200'
+              ? 'bg-[#7c3aed] text-white border-purple-500'
+              : 'bg-[#141414] hover:bg-[#1f1f1f] text-zinc-300 border-[#383838]'
           }`}
         >
-          <div>
-            <div className="text-xs font-bold flex items-center gap-1.5">
-              <span>✨ স্মার্ট অটো কোলাজ (সেরা ফিট)</span>
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-xl bg-black/20 flex items-center justify-center shrink-0">
+              <Sparkles className="w-4 h-4" />
             </div>
-            <p
-              className={`text-[10px] mt-0.5 ${
-                settings.layoutMode === 'auto' ? 'text-blue-100' : 'text-slate-500'
-              }`}
-            >
-              ছবির অনুপাত মেপে স্বয়ংক্রিয়ভাবে একটি পেজে মানানসই সর্বোচ্চ ছবি রাখে
-            </p>
+            <div>
+              <div className="text-xs font-semibold flex items-center gap-1.5">
+                <span>Smart Auto Collage</span>
+                <span className="text-[10px] bg-black/25 px-1.5 py-0.5 rounded-sm uppercase tracking-wider">
+                  Auto Fit
+                </span>
+              </div>
+              <p className={`text-[11px] mt-0.5 ${settings.layoutMode === 'auto' ? 'text-purple-100' : 'text-zinc-400'}`}>
+                Dynamically packs photos based on aspect ratio without crowding or empty gaps
+              </p>
+            </div>
           </div>
           {settings.layoutMode === 'auto' && (
-            <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-bold">
-              সক্রিয়
-            </span>
+            <div className="w-5 h-5 rounded-full bg-white text-purple-700 flex items-center justify-center shrink-0">
+              <Check className="w-3.5 h-3.5 stroke-[3]" />
+            </div>
           )}
         </button>
 
-        {/* 2x2 Grid for Other 4 Presets */}
+        {/* 2x2 Grid for Other Presets */}
         <div className="grid grid-cols-2 gap-1.5">
           {layoutOptions
             .filter((opt) => opt.id !== 'auto')
@@ -91,16 +95,16 @@ export const PagePreviewSheet: React.FC<PagePreviewSheetProps> = ({
                 <button
                   key={opt.id}
                   onClick={() => onUpdateSettings({ layoutMode: opt.id })}
-                  className={`py-2 px-2.5 rounded-xl text-left transition-all border ${
+                  className={`py-2 px-3 rounded-xl text-left transition-all border cursor-pointer ${
                     isSelected
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
-                      : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200/70'
+                      ? 'bg-[#7c3aed] text-white border-purple-500'
+                      : 'bg-[#141414] hover:bg-[#1f1f1f] text-zinc-300 border-[#383838]'
                   }`}
                 >
-                  <div className="text-xs font-bold leading-tight">{opt.label}</div>
+                  <div className="text-xs font-semibold leading-tight">{opt.label}</div>
                   <div
                     className={`text-[10px] mt-0.5 ${
-                      isSelected ? 'text-blue-100' : 'text-slate-400'
+                      isSelected ? 'text-purple-200' : 'text-zinc-400'
                     }`}
                   >
                     {opt.sub}
@@ -111,46 +115,74 @@ export const PagePreviewSheet: React.FC<PagePreviewSheetProps> = ({
         </div>
       </div>
 
-      {/* A4 Paper Live Viewport */}
-      <div className="bg-slate-900/90 rounded-3xl p-4 sm:p-6 shadow-inner text-white flex flex-col items-center">
-        {/* Pagination & controls bar */}
-        <div className="w-full flex items-center justify-between mb-3 text-xs">
-          <div className="flex items-center gap-1.5 font-medium text-slate-300">
-            <FileCheck className="w-4 h-4 text-blue-400" />
-            <span>A4 লাইভ প্রিভিউ</span>
+      {/* A4 Paper Viewport Canvas (#272727 surface, inner background #141414) */}
+      <div className="bg-[#272727] rounded-3xl border border-[#383838] p-4 sm:p-6 flex flex-col items-center">
+        {/* Viewport Top Bar */}
+        <div className="w-full flex items-center justify-between mb-4 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-zinc-300">A4 Live Preview</span>
+            <span className="text-[10px] font-mono text-zinc-400 bg-[#141414] px-2 py-0.5 rounded-md border border-[#383838]">
+              {settings.orientation.toUpperCase()}
+            </span>
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setActivePageIndex((prev) => Math.max(0, prev - 1))}
-              disabled={activePageIndex === 0}
-              aria-label="Previous Page"
-              className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:pointer-events-none transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <span className="font-mono font-bold text-xs bg-slate-800 px-2.5 py-1 rounded-md text-blue-300">
-              {activePageIndex + 1} / {pages.length}
-            </span>
-            <button
-              onClick={() => setActivePageIndex((prev) => Math.min(pages.length - 1, prev + 1))}
-              disabled={activePageIndex >= pages.length - 1}
-              aria-label="Next Page"
-              className="p-1 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:pointer-events-none transition-colors"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+            {/* Zoom Controls */}
+            <div className="hidden sm:flex items-center bg-[#141414] border border-[#383838] rounded-xl p-0.5">
+              <button
+                onClick={() => setZoomScale((s) => Math.max(0.7, s - 0.1))}
+                aria-label="Zoom Out"
+                className="w-6 h-6 rounded-lg hover:bg-[#272727] text-zinc-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <ZoomOut className="w-3.5 h-3.5" />
+              </button>
+              <span className="text-[10px] font-mono px-1.5 text-zinc-300">
+                {Math.round(zoomScale * 100)}%
+              </span>
+              <button
+                onClick={() => setZoomScale((s) => Math.min(1.4, s + 0.1))}
+                aria-label="Zoom In"
+                className="w-6 h-6 rounded-lg hover:bg-[#272727] text-zinc-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <ZoomIn className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex items-center bg-[#141414] border border-[#383838] rounded-xl p-0.5">
+              <button
+                onClick={() => setActivePageIndex((prev) => Math.max(0, prev - 1))}
+                disabled={activePageIndex === 0}
+                aria-label="Previous Page"
+                className="p-1 rounded-lg hover:bg-[#272727] text-zinc-300 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="font-mono text-xs px-2 text-zinc-200">
+                {activePageIndex + 1} / {pages.length}
+              </span>
+              <button
+                onClick={() => setActivePageIndex((prev) => Math.min(pages.length - 1, prev + 1))}
+                disabled={activePageIndex >= pages.length - 1}
+                aria-label="Next Page"
+                className="p-1 rounded-lg hover:bg-[#272727] text-zinc-300 disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* The Exact A4 Paper Card */}
-        <div className="w-full flex justify-center py-2">
+        {/* The Clean White A4 Paper inside #141414 well */}
+        <div className="w-full bg-[#141414] rounded-2xl p-4 sm:p-6 border border-[#383838] flex justify-center overflow-hidden">
           <div
-            className="relative bg-white text-slate-900 rounded-sm shadow-2xl transition-all duration-300 overflow-hidden"
+            className="relative bg-white text-zinc-900 rounded-xs shadow-md transition-transform duration-200 overflow-hidden"
             style={{
               width: '100%',
-              maxWidth: isLandscape ? '460px' : '340px',
+              maxWidth: isLandscape ? '500px' : '340px',
               aspectRatio: isLandscape ? '297 / 210' : '210 / 297',
+              transform: `scale(${zoomScale})`,
+              transformOrigin: 'top center',
             }}
           >
             {/* Slots inside this A4 page */}
@@ -158,7 +190,6 @@ export const PagePreviewSheet: React.FC<PagePreviewSheetProps> = ({
               const img = images[slot.imageIndex];
               if (!img) return null;
 
-              // Compute percent coordinates relative to page dimensions
               const slotLeftPct = (slot.x / currentPage.pageWidth) * 100;
               const slotTopPct = (slot.y / currentPage.pageHeight) * 100;
               const slotWidthPct = (slot.width / currentPage.pageWidth) * 100;
@@ -171,10 +202,10 @@ export const PagePreviewSheet: React.FC<PagePreviewSheetProps> = ({
 
               return (
                 <React.Fragment key={slot.imageId + sIdx}>
-                  {/* Slot Frame background if enabled */}
+                  {/* Subtle slot boundary */}
                   {settings.imageBorder && (
                     <div
-                      className="absolute border border-slate-200 bg-slate-50/50 pointer-events-none"
+                      className="absolute border border-zinc-200 bg-zinc-50 pointer-events-none"
                       style={{
                         left: `${slotLeftPct}%`,
                         top: `${slotTopPct}%`,
@@ -186,7 +217,7 @@ export const PagePreviewSheet: React.FC<PagePreviewSheetProps> = ({
 
                   {/* Fitted Image */}
                   <div
-                    className="absolute overflow-hidden shadow-2xs"
+                    className="absolute overflow-hidden"
                     style={{
                       left: `${fitLeftPct}%`,
                       top: `${fitTopPct}%`,
@@ -202,13 +233,13 @@ export const PagePreviewSheet: React.FC<PagePreviewSheetProps> = ({
                     />
                   </div>
 
-                  {/* Sequence badge */}
+                  {/* Clean index badge */}
                   {settings.showImageIndex && (
                     <div
-                      className="absolute z-10 w-4 h-4 rounded-full bg-blue-600 text-white text-[9px] font-bold flex items-center justify-center shadow-xs"
+                      className="absolute z-10 w-4 h-4 rounded-full bg-[#7c3aed] text-white text-[9px] font-bold flex items-center justify-center shadow-xs"
                       style={{
-                        left: `${slotLeftPct + 1}%`,
-                        top: `${slotTopPct + 1}%`,
+                        left: `${slotLeftPct + 1.2}%`,
+                        top: `${slotTopPct + 1.2}%`,
                       }}
                     >
                       {slot.imageIndex + 1}
@@ -220,8 +251,8 @@ export const PagePreviewSheet: React.FC<PagePreviewSheetProps> = ({
 
             {/* Page number footer */}
             {settings.showPageNumbers && (
-              <div className="absolute bottom-1.5 inset-x-0 text-center text-[8px] font-medium text-slate-600 pointer-events-none">
-                পৃষ্ঠা {activePageIndex + 1} / {pages.length}
+              <div className="absolute bottom-1.5 inset-x-0 text-center text-[8px] font-medium text-zinc-400 pointer-events-none">
+                Page {activePageIndex + 1} of {pages.length}
               </div>
             )}
           </div>
@@ -229,101 +260,104 @@ export const PagePreviewSheet: React.FC<PagePreviewSheetProps> = ({
 
         {/* Thumbnail Page Switcher Strip (if more than 1 page) */}
         {pages.length > 1 && (
-          <div className="w-full flex items-center justify-center gap-2 mt-3 pt-3 border-t border-slate-800 overflow-x-auto pb-1">
+          <div className="w-full flex items-center justify-center gap-2 mt-4 pt-3 border-t border-[#383838] overflow-x-auto pb-1">
             {pages.map((p, pIdx) => (
               <button
                 key={p.pageNumber}
                 onClick={() => setActivePageIndex(pIdx)}
-                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer ${
                   activePageIndex === pIdx
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'bg-slate-800 text-slate-400 hover:text-white'
+                    ? 'bg-[#7c3aed] text-white'
+                    : 'bg-[#141414] text-zinc-400 hover:text-white border border-[#383838]'
                 }`}
               >
-                পেজ {p.pageNumber}
+                Page {p.pageNumber}
               </button>
             ))}
           </div>
         )}
       </div>
 
-      {/* Quick Settings & Toggles */}
-      <div className="bg-white rounded-2xl p-3 border border-slate-200/80 shadow-2xs space-y-3">
-        {/* Orientation & Margin row */}
-        <div className="grid grid-cols-2 gap-2">
+      {/* Settings Bar (#272727 surface, inputs #141414) */}
+      <div className="bg-[#272727] rounded-3xl border border-[#383838] p-4 space-y-3">
+        <div className="grid grid-cols-2 gap-3">
           {/* Orientation */}
           <div>
-            <label className="text-[11px] font-bold text-slate-700 block mb-1">পেজ ওরিয়েন্টেশন</label>
-            <div className="flex bg-slate-100 p-0.5 rounded-xl border border-slate-200">
+            <label className="text-[11px] font-semibold text-zinc-400 block mb-1 uppercase tracking-wider">
+              Orientation
+            </label>
+            <div className="flex bg-[#141414] p-1 rounded-xl border border-[#383838]">
               <button
                 onClick={() => onUpdateSettings({ orientation: 'portrait' })}
-                className={`flex-1 py-1 text-xs font-medium rounded-lg transition-all ${
+                className={`flex-1 py-1 text-xs font-medium rounded-lg transition-all cursor-pointer ${
                   settings.orientation === 'portrait'
-                    ? 'bg-white text-blue-600 shadow-2xs font-bold'
-                    : 'text-slate-600'
+                    ? 'bg-[#272727] text-white font-semibold'
+                    : 'text-zinc-400'
                 }`}
               >
-                লম্বালম্বি
+                Portrait
               </button>
               <button
                 onClick={() => onUpdateSettings({ orientation: 'landscape' })}
-                className={`flex-1 py-1 text-xs font-medium rounded-lg transition-all ${
+                className={`flex-1 py-1 text-xs font-medium rounded-lg transition-all cursor-pointer ${
                   settings.orientation === 'landscape'
-                    ? 'bg-white text-blue-600 shadow-2xs font-bold'
-                    : 'text-slate-600'
+                    ? 'bg-[#272727] text-white font-semibold'
+                    : 'text-zinc-400'
                 }`}
               >
-                আড়াআড়ি
+                Landscape
               </button>
             </div>
           </div>
 
-          {/* Margin */}
+          {/* Margins */}
           <div>
-            <label className="text-[11px] font-bold text-slate-700 block mb-1">মার্জিন ও ফাঁকা জায়গা</label>
+            <label className="text-[11px] font-semibold text-zinc-400 block mb-1 uppercase tracking-wider">
+              Sheet Margins
+            </label>
             <select
               value={settings.margin}
               onChange={(e) => onUpdateSettings({ margin: e.target.value as MarginSize })}
-              className="w-full bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1 text-xs font-medium text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-[#141414] border border-[#383838] rounded-xl px-3 py-1.5 text-xs font-medium text-zinc-200 focus:outline-hidden focus:ring-1 focus:ring-purple-500 cursor-pointer"
             >
-              <option value="none">নো মার্জিন (০ মিমি)</option>
-              <option value="compact">কম্প্যাক্ট (৬ মিমি)</option>
-              <option value="normal">নরমাল (১২ মিমি)</option>
-              <option value="relaxed">আরামদায়ক (১৮ মিমি)</option>
+              <option value="none">No Margin (0 mm)</option>
+              <option value="compact">Compact (6 mm)</option>
+              <option value="normal">Standard (12 mm)</option>
+              <option value="relaxed">Relaxed (18 mm)</option>
             </select>
           </div>
         </div>
 
-        {/* Checkbox Toggles */}
-        <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
-          <label className="flex items-center gap-1.5 cursor-pointer text-slate-700 font-medium">
+        {/* Toggles */}
+        <div className="pt-2 border-t border-[#383838] flex flex-wrap items-center justify-between gap-3 text-xs">
+          <label className="flex items-center gap-2 cursor-pointer text-zinc-300 font-medium">
             <input
               type="checkbox"
               checked={settings.showPageNumbers}
               onChange={(e) => onUpdateSettings({ showPageNumbers: e.target.checked })}
-              className="rounded-sm border-slate-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
+              className="rounded-md border-[#383838] bg-[#141414] text-purple-600 focus:ring-purple-500 w-4 h-4 cursor-pointer"
             />
-            <span>পেজ নম্বর</span>
+            <span>Page Numbers</span>
           </label>
 
-          <label className="flex items-center gap-1.5 cursor-pointer text-slate-700 font-medium">
+          <label className="flex items-center gap-2 cursor-pointer text-zinc-300 font-medium">
             <input
               type="checkbox"
               checked={settings.showImageIndex}
               onChange={(e) => onUpdateSettings({ showImageIndex: e.target.checked })}
-              className="rounded-sm border-slate-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
+              className="rounded-md border-[#383838] bg-[#141414] text-purple-600 focus:ring-purple-500 w-4 h-4 cursor-pointer"
             />
-            <span>ছবি ক্রম নম্বর (#১, #২)</span>
+            <span>Index Badges (#1, #2)</span>
           </label>
 
-          <label className="flex items-center gap-1.5 cursor-pointer text-slate-700 font-medium">
+          <label className="flex items-center gap-2 cursor-pointer text-zinc-300 font-medium">
             <input
               type="checkbox"
               checked={settings.imageBorder}
               onChange={(e) => onUpdateSettings({ imageBorder: e.target.checked })}
-              className="rounded-sm border-slate-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
+              className="rounded-md border-[#383838] bg-[#141414] text-purple-600 focus:ring-purple-500 w-4 h-4 cursor-pointer"
             />
-            <span>ছবির ফ্রেম ও বর্ডার</span>
+            <span>Photo Frame Borders</span>
           </label>
         </div>
       </div>

@@ -74,7 +74,7 @@ export async function generatePdfBlob(
   onProgress?: (progress: GenerationProgress) => void
 ): Promise<{ blob: Blob; url: string; sizeBytes: number }> {
   if (pages.length === 0 || images.length === 0) {
-    throw new Error('পিডিএফ তৈরির জন্য কোনো ছবি পাওয়া যায়নি।');
+    throw new Error('No images found to generate PDF.');
   }
 
   const doc = new jsPDF({
@@ -98,7 +98,7 @@ export async function generatePdfBlob(
         currentPage: pIdx + 1,
         totalPages,
         percent: Math.round(((pIdx + 0.3) / totalPages) * 100),
-        statusText: `পেজ ${pIdx + 1} / ${totalPages} প্রসেস হচ্ছে...`,
+        statusText: `Composing page ${pIdx + 1} of ${totalPages}...`,
       });
     }
 
@@ -107,10 +107,10 @@ export async function generatePdfBlob(
       const img = images[slot.imageIndex];
       if (!img) continue;
 
-      // Optional light frame background/border around slot
+      // Optional subtle frame background/border around slot
       if (settings.imageBorder) {
         doc.setDrawColor(226, 232, 240); // #e2e8f0
-        doc.setFillColor(248, 250, 252); // #f8fafc
+        doc.setFillColor(250, 250, 250); // clean subtle off-white
         doc.setLineWidth(0.25);
         doc.rect(slot.x, slot.y, slot.width, slot.height, 'FD');
       }
@@ -146,9 +146,9 @@ export async function generatePdfBlob(
         }
       }
 
-      // Optional badge: Image sequence number
+      // Optional badge: Image sequence number with purple accent
       if (settings.showImageIndex) {
-        doc.setFillColor(37, 99, 235); // primary blue
+        doc.setFillColor(147, 51, 234); // #9333ea purple accent
         doc.circle(slot.x + 3.5, slot.y + 3.5, 2.5, 'F');
         doc.setFontSize(7);
         doc.setTextColor(255, 255, 255);
@@ -162,7 +162,7 @@ export async function generatePdfBlob(
       doc.setTextColor(148, 163, 184); // slate-400
       const footerY = page.pageHeight - 6;
       doc.text(
-        `পৃষ্ঠা ${pIdx + 1} / ${totalPages}`,
+        `Page ${pIdx + 1} of ${totalPages}`,
         page.pageWidth / 2,
         footerY,
         { align: 'center' }
@@ -174,7 +174,7 @@ export async function generatePdfBlob(
         currentPage: pIdx + 1,
         totalPages,
         percent: Math.round(((pIdx + 1) / totalPages) * 100),
-        statusText: `পেজ ${pIdx + 1} সম্পূর্ণ!`,
+        statusText: `Page ${pIdx + 1} complete!`,
       });
     }
   }

@@ -1,6 +1,6 @@
 {
-  "name": "Smart Image to A4 PDF Maker",
-  "description": "ছবি থেকে স্মার্ট A4 সাইজ কোলাজ পিডিএফ তৈরির মোবাইল ফ্রেন্ডলি দ্রুতগতির ওয়েব অ্যাপ।",
+  "name": "CollagePDF - Smart Image to A4 PDF",
+  "description": "Premium iOS-style dark utility to automatically measure, pack, and export multi-photo smart collage PDFs on A4 paper with 60 FPS GSAP animations.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

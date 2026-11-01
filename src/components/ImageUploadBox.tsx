@@ -1,6 +1,5 @@
 import React, { useRef } from 'react';
-import { Plus, Camera, Sparkles, Image as ImageIcon, CheckCircle2 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Plus, Camera, Sparkles, Image as ImageIcon } from 'lucide-react';
 
 interface ImageUploadBoxProps {
   onFilesSelected: (files: FileList | File[]) => void;
@@ -23,7 +22,6 @@ export const ImageUploadBox: React.FC<ImageUploadBoxProps> = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       onFilesSelected(e.target.files);
-      // Reset input value so re-selecting same file triggers change
       e.target.value = '';
     }
   };
@@ -37,7 +35,6 @@ export const ImageUploadBox: React.FC<ImageUploadBoxProps> = ({
 
   return (
     <div className="w-full">
-      {/* Hidden file inputs */}
       <input
         ref={fileInputRef}
         type="file"
@@ -57,74 +54,58 @@ export const ImageUploadBox: React.FC<ImageUploadBoxProps> = ({
         data-testid="camera-image-input"
       />
 
-      {/* Main Upload Card */}
+      {/* Surface Container (#272727) - Clean Minimalist Box */}
       <div
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
-        className={`relative rounded-3xl border-2 border-dashed transition-all p-6 text-center ${
-          imageCount === 0
-            ? 'border-blue-400 bg-gradient-to-b from-blue-50/70 via-indigo-50/30 to-white shadow-sm'
-            : 'border-slate-300 bg-slate-50/60 hover:border-blue-400'
-        }`}
+        className="relative bg-[#272727] rounded-3xl p-6 sm:p-8 border border-[#383838] text-center transition-all"
       >
-        {/* Prominent Plus Button */}
         <div className="flex flex-col items-center justify-center">
-          <motion.button
-            whileTap={{ scale: 0.93 }}
-            whileHover={{ scale: 1.05 }}
+          {/* Minimalist Solid Purple Plus Button (No Glow) */}
+          <button
             onClick={handleOpenPicker}
-            aria-label="ছবি নির্বাচন করতে প্লাস আইকনে ক্লিক করুন"
-            className="group relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 focus:outline-hidden focus:ring-4 focus:ring-blue-300 transition-all cursor-pointer"
+            aria-label="Add photos"
+            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#7c3aed] hover:bg-[#6d28d9] active:scale-95 text-white flex items-center justify-center transition-all cursor-pointer"
           >
-            <div className="absolute inset-0 rounded-full bg-white/20 animate-ping opacity-25 pointer-events-none" />
-            <Plus className="w-10 h-10 sm:w-12 sm:h-12 stroke-[2.5] transition-transform group-hover:rotate-90 duration-300" />
-          </motion.button>
+            <Plus className="w-8 h-8 sm:w-10 sm:h-10 stroke-[2.2]" />
+          </button>
 
-          <h2 className="mt-4 text-base sm:text-lg font-bold text-slate-900">
-            {imageCount === 0 ? 'প্লাস আইকনে ক্লিক করে ছবি বাছুন' : 'আরও নতুন ছবি যোগ করুন'}
+          <h2 className="mt-4 text-base font-semibold text-white tracking-tight">
+            {imageCount === 0 ? 'Select or Drop Photos' : 'Add More Photos'}
           </h2>
 
-          <p className="mt-1 text-xs sm:text-sm text-slate-500 max-w-xs mx-auto leading-relaxed">
-            একসাথে যতখুশি ছবি সিলেক্ট করুন। সিরিয়াল অনুযায়ী A4 পেজে অটোমেটিক স্মার্ট কোলাজ হবে।
+          <p className="mt-1 text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
+            Multi-photo smart collage. Images are calculated to fit standard A4 sheets without clutter or empty voids.
           </p>
 
-          {/* Quick secondary buttons */}
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+          {/* Action pills inside #141414 sub-container */}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
             <button
               onClick={handleOpenPicker}
-              className="text-xs font-semibold px-3 py-1.5 rounded-full bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all flex items-center gap-1.5 shadow-xs"
+              className="text-xs font-medium px-4 py-2 rounded-xl bg-[#141414] hover:bg-[#1f1f1f] border border-[#383838] text-zinc-200 flex items-center gap-2 transition-all cursor-pointer"
             >
-              <ImageIcon className="w-3.5 h-3.5" />
-              <span>গ্যালারি থেকে বাছুন</span>
+              <ImageIcon className="w-3.5 h-3.5 text-purple-400" />
+              <span>Browse Library</span>
             </button>
 
             <button
               onClick={() => cameraInputRef.current?.click()}
-              className="text-xs font-medium px-3 py-1.5 rounded-full bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 active:scale-95 transition-all flex items-center gap-1.5 shadow-2xs"
+              className="text-xs font-medium px-4 py-2 rounded-xl bg-[#141414] hover:bg-[#1f1f1f] border border-[#383838] text-zinc-300 flex items-center gap-2 transition-all cursor-pointer"
             >
-              <Camera className="w-3.5 h-3.5 text-slate-600" />
-              <span>ক্যামেরা</span>
+              <Camera className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Camera</span>
             </button>
 
             {imageCount === 0 && (
               <button
                 onClick={onLoadSamples}
-                className="text-xs font-medium px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 hover:bg-amber-100 active:scale-95 transition-all flex items-center gap-1.5"
+                className="text-xs font-medium px-4 py-2 rounded-xl bg-[#141414] hover:bg-[#1f1f1f] border border-[#383838] text-purple-400 flex items-center gap-2 transition-all cursor-pointer"
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                <span>স্যাম্পল ৪টি ছবি</span>
+                <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                <span>Load 4 Samples</span>
               </button>
             )}
           </div>
-        </div>
-
-        {/* Format hint */}
-        <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-center gap-3 text-[11px] text-slate-600">
-          <span className="flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3 text-emerald-500" /> JPG, PNG, WebP
-          </span>
-          <span>•</span>
-          <span>আসল রেজোলিউশন অক্ষুণ্ণ থাকে</span>
         </div>
       </div>
     </div>
