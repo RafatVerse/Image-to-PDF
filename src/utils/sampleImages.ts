@@ -1,0 +1,158 @@
+import { UploadedImage } from '../types';
+
+/**
+ * Creates high-quality data URLs dynamically using Canvas so no external network call is needed
+ */
+function createSampleCanvasImage(
+  title: string,
+  subtitle: string,
+  width: number,
+  height: number,
+  gradientStart: string,
+  gradientEnd: string,
+  badgeText: string
+): string {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return '';
+
+  // Background Gradient
+  const grad = ctx.createLinearGradient(0, 0, width, height);
+  grad.addColorStop(0, gradientStart);
+  grad.addColorStop(1, gradientEnd);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, width, height);
+
+  // Subtle decorative pattern lines
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+  ctx.lineWidth = Math.max(2, width / 200);
+  for (let i = 0; i < width + height; i += 50) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i - height, height);
+    ctx.stroke();
+  }
+
+  // Inner card container
+  const pad = Math.min(width, height) * 0.08;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.94)';
+  const radius = Math.min(24, pad);
+  ctx.beginPath();
+  ctx.roundRect(pad, pad, width - pad * 2, height - pad * 2, radius);
+  ctx.fill();
+
+  // Badge on top right
+  const badgeW = Math.min(140, (width - pad * 2) * 0.45);
+  const badgeH = Math.max(28, height * 0.06);
+  ctx.fillStyle = gradientStart;
+  ctx.beginPath();
+  ctx.roundRect(width - pad - badgeW - 16, pad + 16, badgeW, badgeH, 8);
+  ctx.fill();
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `bold ${Math.round(badgeH * 0.55)}px system-ui, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(badgeText, width - pad - badgeW / 2 - 16, pad + 16 + badgeH / 2);
+
+  // Main Title
+  ctx.fillStyle = '#1e293b';
+  const titleSize = Math.max(22, Math.min(48, Math.round(width / 16)));
+  ctx.font = `bold ${titleSize}px system-ui, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(title, width / 2, height / 2 - titleSize * 0.4);
+
+  // Subtitle
+  ctx.fillStyle = '#64748b';
+  const subSize = Math.max(14, Math.min(24, Math.round(titleSize * 0.52)));
+  ctx.font = `500 ${subSize}px system-ui, sans-serif`;
+  ctx.fillText(subtitle, width / 2, height / 2 + subSize * 1.2);
+
+  // Dimension info at bottom
+  ctx.fillStyle = '#94a3b8';
+  const infoSize = Math.max(12, Math.min(18, Math.round(titleSize * 0.4)));
+  ctx.font = `normal ${infoSize}px monospace`;
+  ctx.fillText(`${width} × ${height} px`, width / 2, height - pad - 24);
+
+  return canvas.toDataURL('image/jpeg', 0.92);
+}
+
+export function generateSampleImages(): UploadedImage[] {
+  const samples = [
+    {
+      id: 'sample-1',
+      name: 'Landscape_Photo_1.jpg',
+      title: 'প্রাকৃতিক দৃশ্য (Landscape)',
+      subtitle: 'ওয়াইড ফরম্যাট ১৬:৯ ভিউ',
+      badge: 'ল্যান্ডস্কেপ',
+      width: 1200,
+      height: 675,
+      grad1: '#2563eb',
+      grad2: '#06b6d4',
+      size: '240 KB',
+    },
+    {
+      id: 'sample-2',
+      name: 'Document_Scan_2.jpg',
+      title: 'ডকুমেন্ট ও রসিদ (Document)',
+      subtitle: 'লম্বা অনুপাত ১:১.৪ ভিউ',
+      badge: 'পোর্ট্রেট',
+      width: 800,
+      height: 1120,
+      grad1: '#7c3aed',
+      grad2: '#ec4899',
+      size: '310 KB',
+    },
+    {
+      id: 'sample-3',
+      name: 'ID_Card_Pass_3.jpg',
+      title: 'স্মার্ট আইডি কার্ড (ID Card)',
+      subtitle: 'কার্ড সাইজ ৩:২ অনুপাত',
+      badge: 'আইডি কার্ড',
+      width: 900,
+      height: 600,
+      grad1: '#059669',
+      grad2: '#10b981',
+      size: '185 KB',
+    },
+    {
+      id: 'sample-4',
+      name: 'Profile_Square_4.jpg',
+      title: 'প্রোফাইল ছবি (Square)',
+      subtitle: 'স্কয়ার ১:১ অনুপাত',
+      badge: 'স্কয়ার',
+      width: 800,
+      height: 800,
+      grad1: '#ea580c',
+      grad2: '#f59e0b',
+      size: '220 KB',
+    },
+  ];
+
+  return samples.map((s) => {
+    const dataUrl = createSampleCanvasImage(
+      s.title,
+      s.subtitle,
+      s.width,
+      s.height,
+      s.grad1,
+      s.grad2,
+      s.badge
+    );
+
+    return {
+      id: s.id,
+      name: s.name,
+      dataUrl,
+      width: s.width,
+      height: s.height,
+      aspect: s.width / s.height,
+      rotation: 0,
+      sizeBytes: 250000,
+      sizeFormatted: s.size,
+    };
+  });
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Smart Image to A4 PDF Maker",
+  "description": "ছবি থেকে স্মার্ট A4 সাইজ কোলাজ পিডিএফ তৈরির মোবাইল ফ্রেন্ডলি দ্রুতগতির ওয়েব অ্যাপ।",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
