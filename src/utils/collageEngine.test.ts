@@ -123,3 +123,18 @@ test('calculatePages in grid4 divides 4 images into 2x2 grid', () => {
     assert.ok(slot.y + slot.height <= A4_PORTRAIT_HEIGHT_MM + 0.1);
   }
 });
+
+test('calculatePages in grid9 divides 9 images into 3x3 grid', () => {
+  const imgs = Array.from({ length: 9 }, (_, i) => createMockImage(String(i), 400, 300));
+  const pages = calculatePages(imgs, { ...defaultSettings, layoutMode: 'grid9' });
+  assert.equal(pages.length, 1);
+  assert.equal(pages[0].slots.length, 9);
+
+  pages[0].slots.forEach((s, idx) => {
+    assert.equal(s.imageIndex, idx);
+    assert.equal(s.imageId, String(idx));
+    assert.ok(s.x + s.width <= A4_PORTRAIT_WIDTH_MM + 0.1);
+    assert.ok(s.y + s.height <= A4_PORTRAIT_HEIGHT_MM + 0.1);
+  });
+});
+

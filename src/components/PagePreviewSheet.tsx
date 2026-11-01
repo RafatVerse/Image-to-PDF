@@ -36,6 +36,7 @@ export const PagePreviewSheet: React.FC<PagePreviewSheetProps> = ({
     { id: 'grid2', label: '2-Up Split', sub: 'Two per sheet' },
     { id: 'grid4', label: '4-Up Grid', sub: '2×2 grid' },
     { id: 'grid6', label: '6-Up Grid', sub: '2×3 grid' },
+    { id: 'grid9', label: '9-Up Grid', sub: '3×3 grid' },
     { id: 'single', label: 'Full Page', sub: '1 photo per sheet' },
   ];
 

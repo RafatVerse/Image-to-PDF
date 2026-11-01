@@ -1,4 +1,4 @@
-export type LayoutMode = 'auto' | 'grid2' | 'grid4' | 'grid6' | 'single';
+export type LayoutMode = 'auto' | 'grid2' | 'grid4' | 'grid6' | 'grid9' | 'single';
 
 export type Orientation = 'portrait' | 'landscape';
 

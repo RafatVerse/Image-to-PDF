@@ -254,6 +254,24 @@ function createSlotsForPage(
         imgIdx: 2 + c,
       });
     }
+  } else if (layoutMode === 'grid9') {
+    // 3 cols x 3 rows = 9-up grid
+    const cols = 3;
+    const rows = 3;
+    const colW = (availW - (cols - 1) * gap) / cols;
+    const rowH = (availH - (rows - 1) * gap) / rows;
+
+    for (let i = 0; i < Math.min(9, count); i++) {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      rawSlots.push({
+        x: startX + col * (colW + gap),
+        y: startY + row * (rowH + gap),
+        width: colW,
+        height: rowH,
+        imgIdx: i,
+      });
+    }
   } else {
     // 6 or more: 2 cols x 3 rows grid
     const cols = 2;
@@ -330,6 +348,13 @@ export function calculatePages(images: UploadedImage[], settings: PdfSettings): 
     let rem = images.length;
     while (rem > 0) {
       const take = Math.min(6, rem);
+      groupSizes.push(take);
+      rem -= take;
+    }
+  } else if (settings.layoutMode === 'grid9') {
+    let rem = images.length;
+    while (rem > 0) {
+      const take = Math.min(9, rem);
       groupSizes.push(take);
       rem -= take;
     }

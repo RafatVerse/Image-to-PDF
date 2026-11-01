@@ -9,6 +9,8 @@ import { ImageList } from './components/ImageList';
 import { PagePreviewSheet } from './components/PagePreviewSheet';
 import { BottomActionBar } from './components/BottomActionBar';
 import { DownloadModal } from './components/DownloadModal';
+import { PWAInstallButton } from './components/PWAInstallButton';
+import { OfflineIndicator } from './components/OfflineIndicator';
 import { UploadedImage, PdfSettings } from './types';
 import { calculatePages } from './utils/collageEngine';
 import { generateSampleImages } from './utils/sampleImages';
@@ -17,7 +19,6 @@ import {
   Sparkles,
   Download,
   Plus,
-  Layers,
 } from 'lucide-react';
 
 export default function App() {
@@ -88,20 +89,51 @@ export default function App() {
     });
   };
 
+  // Replace single image in place without disrupting sequence
+  const handleReplace = (index: number, file: File) => {
+    if (!file.type.startsWith('image/')) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        const sizeKb = file.size / 1024;
+        const sizeFormatted =
+          sizeKb > 1024 ? `${(sizeKb / 1024).toFixed(1)} MB` : `${Math.round(sizeKb)} KB`;
+
+        const replacedImage: UploadedImage = {
+          id: `img-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+          name: file.name,
+          dataUrl,
+          width: img.naturalWidth || 800,
+          height: img.naturalHeight || 600,
+          aspect: (img.naturalWidth || 800) / (img.naturalHeight || 600),
+          rotation: 0,
+          sizeBytes: file.size,
+          sizeFormatted,
+        };
+
+        setImages((prev) => {
+          const next = [...prev];
+          next[index] = replacedImage;
+          return next;
+        });
+      };
+      img.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Sample Images Loader
   const handleLoadSamples = () => {
     const samples = generateSampleImages();
     setImages(samples);
   };
 
-  // Drag and drop reordering
-  const handleReorder = (startIndex: number, endIndex: number) => {
-    setImages((prev) => {
-      const result = Array.from(prev);
-      const [removed] = result.splice(startIndex, 1);
-      result.splice(endIndex, 0, removed);
-      return result;
-    });
+  // Motion Reorder handler
+  const handleReorder = (newImages: UploadedImage[]) => {
+    setImages(newImages);
   };
 
   // Rotate Image by 90 degrees
@@ -143,7 +175,7 @@ export default function App() {
       currentPage: 1,
       totalPages: calculatedPages.length,
       percent: 10,
-      statusText: 'Formatting A4 collage pages...',
+      statusText: 'Formatting A4 collage pages offline...',
     });
 
     try {
@@ -161,6 +193,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#000000] text-zinc-100 font-sans antialiased pb-28">
+      {/* Offline Connectivity Notification */}
+      <OfflineIndicator />
+
       {/* Hidden file input */}
       <input
         ref={filePickerRef}
@@ -174,19 +209,21 @@ export default function App() {
         }}
       />
 
-      {/* NO Header bar as requested: "header thakbe na, ekdom simple er moddhe UI ta ekdom premium ar professional productive app er moto shajabe" */}
-      {/* Clean Minimalist Top Utility Ribbon */}
+      {/* Clean Minimalist Top Utility Ribbon (No bulky header) */}
       <div className="max-w-7xl mx-auto px-4 lg:px-8 pt-5 pb-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <span className="text-sm font-semibold tracking-tight text-white flex items-center gap-1.5">
             <span>CollagePDF</span>
           </span>
           <span className="text-[10px] font-mono text-zinc-400 bg-[#141414] border border-[#272727] px-2 py-0.5 rounded-md">
-            A4 SMART
+            PWA OFFLINE
           </span>
         </div>
 
         <div className="flex items-center gap-2">
+          {/* PWA Install Button */}
+          <PWAInstallButton />
+
           {images.length === 0 ? (
             <button
               onClick={handleLoadSamples}
@@ -244,9 +281,9 @@ export default function App() {
           </div>
         )}
 
-        {/* Content dispatcher */}
+        {/* Content Dispatcher */}
         {images.length === 0 ? (
-          /* Empty State: Focused minimalist dropzone with plenty of whitespace */
+          /* Empty State */
           <div className="max-w-md mx-auto space-y-4 pt-6">
             <ImageUploadBox
               onFilesSelected={handleFilesSelected}
@@ -258,25 +295,25 @@ export default function App() {
             <div className="p-5 rounded-3xl bg-[#272727] border border-[#383838] space-y-3">
               <h4 className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
                 <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                <span>Minimalist A4 Packing</span>
+                <span>Offline A4 Photo Packer</span>
               </h4>
               <ul className="text-xs text-zinc-400 space-y-2 leading-relaxed">
                 <li className="flex items-start gap-2">
                   <span className="text-purple-400 font-bold">•</span>
                   <span>
-                    <strong className="text-zinc-200">Zero Aspect Distortion:</strong> Calculates natural width and height to place images neatly onto A4 sheets.
+                    <strong className="text-zinc-200">100% Offline Capable:</strong> Compiles A4 PDFs entirely within your browser or installed PWA app without internet.
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-purple-400 font-bold">•</span>
                   <span>
-                    <strong className="text-zinc-200">Drag & Drop Order:</strong> Images are converted to PDF strictly matching your custom sequence.
+                    <strong className="text-zinc-200">Smooth Reorder & Reselect:</strong> Drag items to reorder, replace mistaken photos, or swipe left to delete.
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-purple-400 font-bold">•</span>
                   <span>
-                    <strong className="text-zinc-200">Instant PDF Download:</strong> Compiles all pages in-browser without any server upload lag.
+                    <strong className="text-zinc-200">New 3×3 Grid:</strong> Supports Smart Auto, 2-Up, 4-Up, 6-Up, and 9-Up (3×3) grids.
                   </span>
                 </li>
               </ul>
@@ -285,7 +322,7 @@ export default function App() {
         ) : (
           /* Active State: Desktop Dual-Pane (lg:) or Mobile Steps (< lg) */
           <div className="lg:grid lg:grid-cols-12 lg:gap-6 items-start">
-            {/* Left Column: Upload Dropzone & Collapsed/Expandable Drag-Drop Queue */}
+            {/* Left Column: Upload Dropzone & Reorderable Queue */}
             <div
               className={`space-y-4 lg:col-span-5 ${
                 step === 'preview' ? 'hidden lg:block' : 'block max-w-md mx-auto lg:max-w-none'
@@ -297,12 +334,12 @@ export default function App() {
                 imageCount={images.length}
               />
 
-              {/* Collapsed by default, expandable drag-and-drop queue */}
               <ImageList
                 images={images}
                 onReorder={handleReorder}
                 onRotate={handleRotate}
                 onRemove={handleRemove}
+                onReplace={handleReplace}
                 onClearAll={handleClearAll}
               />
             </div>
@@ -324,9 +361,9 @@ export default function App() {
               <div className="hidden lg:flex items-center justify-between p-4 rounded-3xl bg-[#272727] border border-[#383838]">
                 <div>
                   <p className="text-xs font-semibold text-white">
-                    {images.length} photos ready &rarr; {calculatedPages.length} A4 {calculatedPages.length === 1 ? 'page' : 'pages'}
+                    {images.length} photos &rarr; {calculatedPages.length} A4 {calculatedPages.length === 1 ? 'page' : 'pages'}
                   </p>
-                  <p className="text-[11px] text-zinc-400">High-resolution client-side export</p>
+                  <p className="text-[11px] text-zinc-400">Offline client-side high resolution export</p>
                 </div>
 
                 <button
