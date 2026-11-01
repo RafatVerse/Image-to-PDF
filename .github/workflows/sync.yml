@@ -1,0 +1,19 @@
+name: Auto Sync to Fork
+
+on:
+  push:
+    branches:
+      - main  # Tomar branch jodi master hoy, tahole main kete master likhbe
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to Fork
+        run: |
+          git push --force https://x-access-token:${{ secrets.IMAGE_TO_PDF_GENERATOR }}@github.com/<SECOND_ACCOUNT_USERNAME>/<FORKED_REPO_NAME>.git main
