@@ -19,6 +19,7 @@ import {
   Sparkles,
   Download,
   Plus,
+  ArrowRight,
 } from 'lucide-react';
 
 export default function App() {
@@ -360,8 +361,10 @@ export default function App() {
               {/* Desktop Direct Export Strip */}
               <div className="hidden lg:flex items-center justify-between p-4 rounded-3xl bg-[#272727] border border-[#383838]">
                 <div>
-                  <p className="text-xs font-semibold text-white">
-                    {images.length} photos &rarr; {calculatedPages.length} A4 {calculatedPages.length === 1 ? 'page' : 'pages'}
+                  <p className="text-xs font-semibold text-white flex items-center gap-1.5">
+                    <span>{images.length} {images.length === 1 ? 'photo' : 'photos'}</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-purple-400" />
+                    <span>{calculatedPages.length} A4 {calculatedPages.length === 1 ? 'page' : 'pages'}</span>
                   </p>
                   <p className="text-[11px] text-zinc-400">Offline client-side high resolution export</p>
                 </div>

@@ -13,11 +13,11 @@ export const PWAInstallButton: React.FC = () => {
     return (
       <button
         onClick={install}
-        className="text-xs font-medium px-3 py-1.5 rounded-xl bg-[#272727] hover:bg-[#333333] border border-[#383838] text-purple-300 flex items-center gap-1.5 transition-colors cursor-pointer"
+        className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-[#141414] hover:bg-[#1f1f1f] border border-[#383838] text-purple-300 flex items-center gap-1.5 transition-colors cursor-pointer"
         title="Install app to your home screen or desktop"
       >
         <DownloadCloud className="w-3.5 h-3.5 text-purple-400" />
-        <span>Install App</span>
+        <span>Install</span>
       </button>
     );
   }
@@ -27,11 +27,11 @@ export const PWAInstallButton: React.FC = () => {
       <>
         <button
           onClick={() => setShowIOSGuide(true)}
-          className="text-xs font-medium px-3 py-1.5 rounded-xl bg-[#272727] hover:bg-[#333333] border border-[#383838] text-purple-300 flex items-center gap-1.5 transition-colors cursor-pointer"
+          className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-[#141414] hover:bg-[#1f1f1f] border border-[#383838] text-purple-300 flex items-center gap-1.5 transition-colors cursor-pointer"
           title="Install on iOS Home Screen"
         >
           <Smartphone className="w-3.5 h-3.5 text-purple-400" />
-          <span>Install PWA</span>
+          <span>Install</span>
         </button>
 
         {showIOSGuide && (

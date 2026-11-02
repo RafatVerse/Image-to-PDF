@@ -1,16 +1,49 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="128" fill="#000000" />
-  <rect x="32" y="32" width="448" height="448" rx="100" fill="#141414" stroke="#272727" stroke-width="8" />
+  <defs>
+    <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9333ea" />
+      <stop offset="100%" stop-color="#6b21a8" />
+    </linearGradient>
+    <linearGradient id="sheetGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2a2a2a" />
+      <stop offset="100%" stop-color="#181818" />
+    </linearGradient>
+  </defs>
+
+  <!-- Dark Squircle Background -->
+  <rect width="512" height="512" rx="120" fill="#000000" />
   
-  <!-- A4 Sheet Base -->
-  <rect x="120" y="90" width="272" height="332" rx="28" fill="#272727" stroke="#383838" stroke-width="6" />
+  <!-- Subtle Border Frame -->
+  <rect x="24" y="24" width="464" height="464" rx="104" fill="none" stroke="#272727" stroke-width="8" />
+
+  <!-- Centered A4 Sheet -->
+  <rect x="110" y="80" width="292" height="352" rx="28" fill="url(#sheetGrad)" stroke="#383838" stroke-width="4" />
   
-  <!-- 2x2 Grid Collage Slots -->
-  <rect x="144" y="116" width="104" height="130" rx="16" fill="#7c3aed" />
-  <rect x="264" y="116" width="104" height="130" rx="16" fill="#383838" />
-  <rect x="144" y="262" width="104" height="130" rx="16" fill="#383838" />
-  <rect x="264" y="262" width="104" height="130" rx="16" fill="#9333ea" />
-  
-  <!-- Subtle center cross separator -->
-  <circle cx="256" cy="254" r="8" fill="#ffffff" opacity="0.8" />
+  <!-- Top Left Photo Tile: Purple Gradient -->
+  <rect x="136" y="106" width="112" height="136" rx="16" fill="url(#purpleGrad)" />
+  <!-- Small landscape mountain symbol in tile 1 -->
+  <path d="M164 210 L184 178 L200 200 L212 186 L226 210 Z" fill="#ffffff" opacity="0.9" />
+  <circle cx="218" cy="154" r="10" fill="#ffffff" opacity="0.9" />
+
+  <!-- Top Right Photo Tile: Clean Surface Card -->
+  <rect x="264" y="106" width="112" height="136" rx="16" fill="#222222" stroke="#383838" stroke-width="2" />
+  <rect x="282" y="132" width="76" height="8" rx="4" fill="#71717a" opacity="0.6" />
+  <rect x="282" y="152" width="60" height="8" rx="4" fill="#71717a" opacity="0.4" />
+  <rect x="282" y="172" width="68" height="8" rx="4" fill="#71717a" opacity="0.4" />
+
+  <!-- Bottom Left Photo Tile: Document Card -->
+  <rect x="136" y="258" width="112" height="148" rx="16" fill="#222222" stroke="#383838" stroke-width="2" />
+  <rect x="154" y="284" width="76" height="8" rx="4" fill="#71717a" opacity="0.6" />
+  <rect x="154" y="304" width="56" height="8" rx="4" fill="#71717a" opacity="0.4" />
+  <rect x="154" y="324" width="64" height="8" rx="4" fill="#71717a" opacity="0.4" />
+
+  <!-- Bottom Right Photo Tile: Purple Accent Card -->
+  <rect x="264" y="258" width="112" height="148" rx="16" fill="#7c3aed" />
+  <!-- Minimalist Photo Icon -->
+  <circle cx="320" cy="316" r="14" fill="#ffffff" opacity="0.85" />
+  <path d="M286 376 L310 344 L326 364 L336 352 L354 376 Z" fill="#ffffff" opacity="0.85" />
+
+  <!-- Subtle PDF pill badge on top -->
+  <rect x="216" y="66" width="80" height="28" rx="14" fill="#7c3aed" />
+  <text x="256" y="85" font-family="-apple-system, system-ui, sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="middle" letter-spacing="1">A4</text>
 </svg>

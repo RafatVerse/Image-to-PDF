@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   GripVertical,
   RotateCw,
@@ -8,7 +8,7 @@ import {
   ImageIcon,
   RefreshCw,
 } from 'lucide-react';
-import { motion, Reorder, AnimatePresence } from 'motion/react';
+import { motion, Reorder, useDragControls } from 'motion/react';
 import { UploadedImage } from '../types';
 
 interface ImageListProps {
@@ -19,6 +19,161 @@ interface ImageListProps {
   onReplace: (index: number, file: File) => void;
   onClearAll: () => void;
 }
+
+interface ImageRowProps {
+  image: UploadedImage;
+  index: number;
+  onRotate: (index: number) => void;
+  onRemove: (index: number) => void;
+  onTriggerReplace: (index: number) => void;
+}
+
+const ImageRow: React.FC<ImageRowProps> = ({
+  image,
+  index,
+  onRotate,
+  onRemove,
+  onTriggerReplace,
+}) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const dragControls = useDragControls();
+  const [isThresholdPassed, setIsThresholdPassed] = useState(false);
+  const [isDismissing, setIsDismissing] = useState(false);
+
+  const handleDrag = (_: unknown, info: { offset: { x: number } }) => {
+    const width = cardRef.current?.offsetWidth || 300;
+    // Dragging to the left produces a negative x offset
+    const passed = info.offset.x <= -(width * 0.5);
+    setIsThresholdPassed(passed);
+  };
+
+  const handleDragEnd = (_: unknown, info: { offset: { x: number } }) => {
+    const width = cardRef.current?.offsetWidth || 300;
+    if (info.offset.x <= -(width * 0.5)) {
+      setIsDismissing(true);
+      setTimeout(() => {
+        onRemove(index);
+      }, 200);
+    } else {
+      setIsThresholdPassed(false);
+    }
+  };
+
+  return (
+    <Reorder.Item
+      value={image}
+      dragListener={false}
+      dragControls={dragControls}
+      className="relative select-none overflow-hidden rounded-2xl"
+      style={{ touchAction: 'pan-y' }}
+    >
+      {/* Material Slide-to-Delete Red Container (Revealed from behind) */}
+      <div
+        className={`absolute inset-0 rounded-2xl flex items-center justify-end pr-5 transition-colors duration-200 overflow-hidden ${
+          isThresholdPassed ? 'bg-rose-600' : 'bg-[#3b1219]'
+        }`}
+      >
+        <div className="flex items-center gap-2 select-none">
+          <span
+            className={`text-[11px] font-semibold tracking-wide transition-colors duration-150 ${
+              isThresholdPassed ? 'text-white' : 'text-rose-300/80'
+            }`}
+          >
+            {isThresholdPassed ? 'Release to Delete' : 'Slide 50% to delete'}
+          </span>
+          <div
+            className={`p-1.5 rounded-full transition-transform duration-200 ${
+              isThresholdPassed
+                ? 'bg-white text-rose-600 scale-110 shadow-lg'
+                : 'bg-rose-900/80 text-rose-200 scale-95'
+            }`}
+          >
+            <Trash2 className="w-4 h-4" />
+          </div>
+        </div>
+      </div>
+
+      {/* Foreground Interactive Card (Slidable horizontally) */}
+      <motion.div
+        ref={cardRef}
+        drag="x"
+        dragDirectionLock
+        dragConstraints={{ left: -1000, right: 0 }}
+        dragElastic={{ left: 0.1, right: 0 }}
+        dragSnapToOrigin={!isDismissing}
+        animate={isDismissing ? { x: -600, opacity: 0 } : { x: 0, opacity: 1 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        onDrag={handleDrag}
+        onDragEnd={handleDragEnd}
+        className="relative z-10 bg-[#141414] rounded-2xl p-2.5 sm:p-3 border border-[#2d2d2d] hover:border-[#404040] flex items-center gap-3 transition-colors"
+      >
+        {/* Vertical Reorder Grip Handle (Only drag handles vertical movement) */}
+        <div
+          onPointerDown={(e) => dragControls.start(e)}
+          className="text-zinc-500 hover:text-zinc-300 active:text-purple-400 shrink-0 cursor-grab active:cursor-grabbing p-1.5 touch-none"
+          title="Hold and drag up or down to reorder"
+          aria-label="Reorder handle"
+        >
+          <GripVertical className="w-4 h-4" />
+        </div>
+
+        {/* Sequence Number */}
+        <span className="text-xs font-mono font-bold text-zinc-400 w-5 shrink-0 text-center">
+          #{index + 1}
+        </span>
+
+        {/* Thumbnail Preview */}
+        <div className="relative w-11 h-11 rounded-xl overflow-hidden bg-black shrink-0 border border-[#383838]">
+          <img
+            src={image.dataUrl}
+            alt={image.name}
+            className="w-full h-full object-cover"
+            style={{ transform: `rotate(${image.rotation}deg)` }}
+          />
+        </div>
+
+        {/* Name and File Size (clean, no dimensions) */}
+        <div className="flex-1 min-w-0 pr-1">
+          <p className="text-xs font-medium text-zinc-100 truncate">{image.name}</p>
+          <p className="text-[10px] font-mono text-zinc-400 mt-0.5">{image.sizeFormatted}</p>
+        </div>
+
+        {/* Direct Action Buttons */}
+        <div className="flex items-center gap-1 shrink-0">
+          {/* Replace / Reselect Single Image */}
+          <button
+            onClick={() => onTriggerReplace(index)}
+            title="Replace photo"
+            aria-label="Replace this photo"
+            className="w-7 h-7 rounded-lg bg-[#272727] hover:bg-[#333333] text-zinc-300 hover:text-purple-400 flex items-center justify-center transition-colors cursor-pointer"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Rotate 90° */}
+          <button
+            onClick={() => onRotate(index)}
+            title="Rotate 90°"
+            aria-label="Rotate 90 degrees"
+            className="w-7 h-7 rounded-lg bg-[#272727] hover:bg-[#333333] text-zinc-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+          >
+            <RotateCw className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Direct Trash Click (Alternative to swipe) */}
+          <button
+            onClick={() => onRemove(index)}
+            title="Remove (or swipe left)"
+            aria-label="Remove photo"
+            className="w-7 h-7 rounded-lg bg-[#272727] hover:bg-[#333333] text-zinc-400 hover:text-rose-400 flex items-center justify-center transition-colors cursor-pointer"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </motion.div>
+    </Reorder.Item>
+  );
+};
 
 export const ImageList: React.FC<ImageListProps> = ({
   images,
@@ -78,7 +233,7 @@ export const ImageList: React.FC<ImageListProps> = ({
               </span>
             </div>
             <p className="text-[10px] text-zinc-400">
-              {isExpanded ? 'Drag to reorder • Swipe left to remove' : 'Tap to expand queue'}
+              {isExpanded ? 'Grip handle to reorder • Slide left to delete' : 'Tap to expand queue'}
             </p>
           </div>
         </button>
@@ -103,7 +258,7 @@ export const ImageList: React.FC<ImageListProps> = ({
         </div>
       </div>
 
-      {/* Collapsed Horizontal Strip with Soft Edge Left & Right Fades (No arrow/text) */}
+      {/* Collapsed Horizontal Strip with Soft Edge Left & Right Fades */}
       {!isExpanded && (
         <div
           onClick={() => setIsExpanded(true)}
@@ -142,90 +297,17 @@ export const ImageList: React.FC<ImageListProps> = ({
             axis="y"
             values={images}
             onReorder={onReorder}
-            className="space-y-2"
+            className="space-y-2 overflow-hidden"
           >
             {images.map((image, idx) => (
-              <Reorder.Item
+              <ImageRow
                 key={image.id}
-                value={image}
-                className="relative"
-              >
-                {/* Swipeable item card with swipe-left-to-delete support */}
-                <motion.div
-                  drag="x"
-                  dragConstraints={{ left: -100, right: 0 }}
-                  dragElastic={0.2}
-                  onDragEnd={(_, info) => {
-                    if (info.offset.x < -70) {
-                      onRemove(idx);
-                    }
-                  }}
-                  className="bg-[#141414] rounded-2xl p-2.5 sm:p-3 border border-[#2d2d2d] hover:border-[#404040] flex items-center gap-3 transition-colors select-none"
-                >
-                  {/* Drag Handle */}
-                  <div className="text-zinc-500 hover:text-zinc-300 shrink-0 cursor-grab active:cursor-grabbing p-1">
-                    <GripVertical className="w-4 h-4" />
-                  </div>
-
-                  {/* Sequence Number */}
-                  <span className="text-xs font-mono font-bold text-zinc-400 w-5 shrink-0 text-center">
-                    #{idx + 1}
-                  </span>
-
-                  {/* Thumbnail */}
-                  <div className="relative w-11 h-11 rounded-xl overflow-hidden bg-black shrink-0 border border-[#383838]">
-                    <img
-                      src={image.dataUrl}
-                      alt={image.name}
-                      className="w-full h-full object-cover"
-                      style={{ transform: `rotate(${image.rotation}deg)` }}
-                    />
-                  </div>
-
-                  {/* Info: Name and File size (no dimensions, as requested) */}
-                  <div className="flex-1 min-w-0 pr-1">
-                    <p className="text-xs font-medium text-zinc-100 truncate">
-                      {image.name}
-                    </p>
-                    <p className="text-[10px] font-mono text-zinc-400 mt-0.5">
-                      {image.sizeFormatted}
-                    </p>
-                  </div>
-
-                  {/* Actions: Replace, Rotate 90, Delete */}
-                  <div className="flex items-center gap-1 shrink-0">
-                    {/* Reselect / Replace single image button */}
-                    <button
-                      onClick={() => triggerReplace(idx)}
-                      title="Replace photo"
-                      aria-label="Replace this photo"
-                      className="w-7 h-7 rounded-lg bg-[#272727] hover:bg-[#333333] text-zinc-300 hover:text-purple-400 flex items-center justify-center transition-colors cursor-pointer"
-                    >
-                      <RefreshCw className="w-3.5 h-3.5" />
-                    </button>
-
-                    {/* Rotate 90 deg */}
-                    <button
-                      onClick={() => onRotate(idx)}
-                      title="Rotate 90°"
-                      aria-label="Rotate 90 degrees"
-                      className="w-7 h-7 rounded-lg bg-[#272727] hover:bg-[#333333] text-zinc-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
-                    >
-                      <RotateCw className="w-3.5 h-3.5" />
-                    </button>
-
-                    {/* Delete */}
-                    <button
-                      onClick={() => onRemove(idx)}
-                      title="Remove (or swipe left)"
-                      aria-label="Remove photo"
-                      className="w-7 h-7 rounded-lg bg-[#272727] hover:bg-[#333333] text-zinc-400 hover:text-rose-400 flex items-center justify-center transition-colors cursor-pointer"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </motion.div>
-              </Reorder.Item>
+                image={image}
+                index={idx}
+                onRotate={onRotate}
+                onRemove={onRemove}
+                onTriggerReplace={triggerReplace}
+              />
             ))}
           </Reorder.Group>
         </div>
